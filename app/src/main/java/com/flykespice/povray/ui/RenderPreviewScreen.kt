@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.flykespice.povray.POVRay
 import com.flykespice.povray.R
 import com.flykespice.povray.ui.theme.POVRayTheme
 

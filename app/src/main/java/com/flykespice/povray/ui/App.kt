@@ -2,6 +2,10 @@ package com.flykespice.povray.ui
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -39,20 +43,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.getTextAfterSelection
-import androidx.compose.ui.text.input.getTextBeforeSelection
-import androidx.compose.ui.text.substring
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.core.graphics.createBitmap
 import com.flykespice.povray.AppState
 import com.flykespice.povray.POVRay
 import com.flykespice.povray.R
 import com.flykespice.povray.ui.dialog.RenderOptionsDialog
 import com.flykespice.povray.ui.theme.POVRayTheme
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import java.nio.ByteOrder
 
@@ -129,15 +126,14 @@ fun POVRayApp(
         }
     }
 
-    val navController = rememberNavController()
+    var destination by remember { mutableIntStateOf(0) }
     val editorScrollState = rememberScrollState()
     Scaffold(
         topBar = { AppTopBar(onClickOpen = onClickOpen, onClickSave = onClickSave) },
         bottomBar = {
-            val currentDestination by navController.currentBackStackEntryAsState()
             AppBottomNavigation(
-                currentDestination = currentDestination?.destination?.route ?: "editor",
-                onChangeDestination = { navController.navigate(it) }
+                currentDestination = destination,
+                onChangeDestination = { destination = it }
             )
         },
         floatingActionButton = {
@@ -159,133 +155,144 @@ fun POVRayApp(
             }
         }
     ) { paddingValues ->
-        NavHost(
-            startDestination = "editor",
-            navController = navController,
-        ) {
-            composable("editor") {
-                var textField by remember { mutableStateOf(TextFieldValue(AppState.povCode)) }
-                val commentRegex = remember { Regex("/\\*.*?\\*/") } //To speedup character input processing
 
-                EditorScreen(
-                    textField = textField,
-                    scrollState = editorScrollState,
-                    onValueChange = {
-                        var newText = it
-                        //Was a new character added?
-                        if (newText.text.length == textField.text.length+1) {
-                            val cursorPos = newText.selection.start
-                            val lastChar = newText.text[cursorPos-1]
-                            when (lastChar) {
-                                '{' -> {
-                                    if (newText.text.getOrNull(cursorPos) != '}') {
+        AnimatedContent(
+            targetState = destination,
+            transitionSpec = {
+                if (targetState > initialState) {
+                    slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+                } else {
+                    slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                }
+            }
+        ) { dest ->
+            when (dest) {
+                0 ->  { //editor
+                    var textField by remember { mutableStateOf(TextFieldValue(AppState.povCode)) }
+                    val commentRegex = remember { Regex("/\\*.*?\\*/") } //To speedup character input processing
+
+                    EditorScreen(
+                        textField = textField,
+                        scrollState = editorScrollState,
+                        onValueChange = {
+                            var newText = it
+                            //Was a new character added?
+                            if (newText.text.length == textField.text.length+1) {
+                                val cursorPos = newText.selection.start
+                                val lastChar = newText.text[cursorPos-1]
+                                when (lastChar) {
+                                    '{' -> {
+                                        if (newText.text.getOrNull(cursorPos) != '}') {
+                                            newText = it.copy(
+                                                text = it.text.replaceRange(
+                                                    cursorPos - 1..cursorPos - 1,
+                                                    "{}"
+                                                )
+                                            )
+                                        }
+                                    }
+
+                                    '}' -> {
+                                        //TODO: indent all the previous lines until the first '{'...
+                                    }
+
+                                    '<' -> {
+                                        if (newText.text.getOrNull(cursorPos) != '>') {
+                                            newText = it.copy(
+                                                text = it.text.replaceRange(
+                                                    cursorPos - 1..cursorPos - 1,
+                                                    "<>"
+                                                )
+                                            )
+                                        }
+                                    }
+
+                                    '\n' -> {
+                                        val lastLine = it.text.substring(0..cursorPos-2)
+                                            .substringAfterLast('\n')
+                                            .substringBefore("//") //skip comments
+                                            .replace(commentRegex, "")
+                                        var indent = lastLine.takeWhile { it.isWhitespace() && it != '\n' }
+
+                                        //TODO: Check if cursor inside brackets on the same line
+                                        if ('{' in lastLine)
+                                            indent += " ".repeat(4)
+
                                         newText = it.copy(
                                             text = it.text.replaceRange(
                                                 cursorPos - 1..cursorPos - 1,
-                                                "{}"
-                                            )
+                                                "\n" + indent
+                                            ),
+                                            selection = TextRange((cursorPos - 1) + indent.length + 1)
                                         )
-                                    }
-                                }
 
-                                '}' -> {
-                                    //TODO: indent all the previous lines until the first '{'...
-                                }
+                                        val nextLine = newText.text
+                                            .substring(cursorPos)
+                                            .substringBefore('\n')
+                                            .substringBefore("//")
+                                            .replace(commentRegex, "")
 
-                                '<' -> {
-                                    if (newText.text.getOrNull(cursorPos) != '>') {
-                                        newText = it.copy(
-                                            text = it.text.replaceRange(
-                                                cursorPos - 1..cursorPos - 1,
-                                                "<>"
-                                            )
-                                        )
-                                    }
-                                }
-
-                                '\n' -> {
-                                    val lastLine = it.text.substring(0..cursorPos-2)
-                                        .substringAfterLast('\n')
-                                        .substringBefore("//") //skip comments
-                                        .replace(commentRegex, "")
-                                    var indent = lastLine.takeWhile { it.isWhitespace() && it != '\n' }
-
-                                    //TODO: Check if cursor inside brackets on the same line
-                                    if ('{' in lastLine)
-                                        indent += " ".repeat(4)
-
-                                    newText = it.copy(
-                                        text = it.text.replaceRange(
-                                            cursorPos - 1..cursorPos - 1,
-                                            "\n" + indent
-                                        ),
-                                        selection = TextRange((cursorPos - 1) + indent.length + 1)
-                                    )
-
-                                    val nextLine = newText.text
-                                        .substring(cursorPos)
-                                        .substringBefore('\n')
-                                        .substringBefore("//")
-                                        .replace(commentRegex, "")
-
-                                    if ('}' in nextLine) {
-                                        val index = newText.text.indexOf('}', cursorPos)
-                                        newText = newText.copy(text = newText.text.replaceRange(index..index, "\n"+indent.dropLast(4)+"}"))
+                                        if ('}' in nextLine) {
+                                            val index = newText.text.indexOf('}', cursorPos)
+                                            newText = newText.copy(text = newText.text.replaceRange(index..index, "\n"+indent.dropLast(4)+"}"))
+                                        }
                                     }
                                 }
                             }
+
+                            AppState.povCode = newText.text;
+                            textField = newText
+                        },
+                        styleText = { AnnotatedString(it) },
+                        paddingValues = paddingValues
+                    )
+                }
+
+                1 -> { //preview
+                    var previewBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+                    val bitmap = remember(width, height) {
+                        createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    }
+
+                    LaunchedEffect(true) {
+                        while (true) {
+                            POVRay.imageBuffer.rewind()
+                            POVRay.imageBuffer.order(ByteOrder.nativeOrder())
+                            bitmap.copyPixelsFromBuffer(POVRay.imageBuffer)
+                            previewBitmap = bitmap.asImageBitmap()
+                            delay(400)
                         }
+                    }
 
-                        AppState.povCode = newText.text;
-                        textField = newText
-                    },
-                    styleText = { AnnotatedString(it) },
-                    paddingValues = paddingValues
-                )
-            }
-
-            composable("preview") {
-                var previewBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-                val bitmap = remember(width, height) { Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) }
-
-                LaunchedEffect(true) {
-                    while (true) {
-                        POVRay.imageBuffer.rewind()
-                        POVRay.imageBuffer.order(ByteOrder.nativeOrder())
-                        bitmap.copyPixelsFromBuffer(POVRay.imageBuffer)
-                        previewBitmap = bitmap.asImageBitmap()
-                        delay(400)
+                    if (previewBitmap != null) {
+                        Surface(Modifier.padding(paddingValues)) {
+                            RenderPreviewScreen(
+                                previewBitmap = previewBitmap!!,
+                                isRendering = isRendering,
+                                onClickSave = { onSaveBitmap(bitmap) }
+                            )
+                        }
                     }
                 }
 
-                if (previewBitmap != null) {
+                2 -> { //Log
+                    LaunchedEffect(true) {
+                        while (true) {
+                            val messages = POVRay.getMessages()
+                            if (messages.isNotEmpty()) {
+                                consoleLog += messages
+                            }
+                            delay(500)
+                        }
+                    }
+
                     Surface(Modifier.padding(paddingValues)) {
-                        RenderPreviewScreen(
-                            previewBitmap = previewBitmap!!,
-                            isRendering = isRendering,
-                            onClickSave = { onSaveBitmap(bitmap) }
-                        )
+                        LogScreen(consoleLog)
                     }
                 }
             }
-
-            composable("log") {
-                LaunchedEffect(true) {
-                    while (true) {
-                        val messages = POVRay.getMessages()
-                        if (messages.isNotEmpty()) {
-                            consoleLog += messages
-                        }
-                        delay(500)
-                    }
-                }
-
-                Surface(Modifier.padding(paddingValues)) {
-                    LogScreen(consoleLog)
-                }
             }
         }
-    }
 }
 
 
@@ -327,25 +334,25 @@ private fun AppDropDownMenu(
 }
 
 @Composable
-private fun AppBottomNavigation(currentDestination: String, onChangeDestination: (String) -> Unit) {
+private fun AppBottomNavigation(currentDestination: Int, onChangeDestination: (Int) -> Unit) {
     NavigationBar {
         NavigationBarItem(
-            selected = currentDestination == "editor",
-            onClick = { onChangeDestination("editor") },
+            selected = currentDestination == 0,
+            onClick = { onChangeDestination(0) },
             icon = { Icon(Icons.Default.Create, "editor") },
             label = { Text("Editor") }
         )
 
         NavigationBarItem(
-            selected = currentDestination == "preview",
-            onClick = { onChangeDestination("preview") },
+            selected = currentDestination == 1,
+            onClick = { onChangeDestination(1) },
             icon = { Icon(painterResource(id = R.drawable.imagesmode), "render preview") },
             label = { Text("Preview") }
         )
 
         NavigationBarItem(
-            selected = currentDestination == "log",
-            onClick = { onChangeDestination("log") },
+            selected = currentDestination == 2,
+            onClick = { onChangeDestination(2) },
             icon = { Icon(painterResource(id = R.drawable.wysiwyg), "POVRay console log") },
             label = { Text("Log") }
         )
