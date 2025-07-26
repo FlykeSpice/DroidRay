@@ -1,6 +1,7 @@
 name: Build signed release APK
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - v*
