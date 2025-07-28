@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := povray
 
-LOCAL_CFLAGS := -DLIBTIFF_MISSING -DOPENEXR_MISSING -DX_DISPLAY_MISSING -DDISTRIBUTION_MESSAGE_2=\"flykespice\" 
+LOCAL_CFLAGS := -DLIBJPEG_MISSING -DLIBPNG_MISSING -DLIBTIFF_MISSING -DOPENEXR_MISSING -DX_DISPLAY_MISSING -DDISTRIBUTION_MESSAGE_2=\"flykespice\"
 
 LOCAL_CPPFLAGS := -std=c++17
 
@@ -20,15 +20,14 @@ LOCAL_C_INCLUDES :=\
 
 LOCAL_LDLIBS := -lz -lm -llog
 
-LOCAL_STATIC_LIBRARIES := libjpeg libpng
-
 LOCAL_SRC_FILES :=\
 	$(wildcard $(LOCAL_PATH)/source/*.cpp)\
 	$(wildcard $(LOCAL_PATH)/source/frontend/*.cpp)\
 	$(wildcard $(LOCAL_PATH)/source/backend/*.cpp)\
 	$(wildcard $(LOCAL_PATH)/source/backend/**/*.cpp)\
 	$(wildcard $(LOCAL_PATH)/source/base/*.cpp)\
-	$(wildcard $(LOCAL_PATH)/source/base/**/*.cpp)\
+	$(wildcard $(LOCAL_PATH)/source/base/font/*.cpp)\
+	$(wildcard $(LOCAL_PATH)/source/base/image/*.cpp)\
 	$(wildcard $(LOCAL_PATH)/vfe/*.cpp)\
 	$(wildcard $(LOCAL_PATH)/vfe/android/*.cpp)
 
