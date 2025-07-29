@@ -1,4 +1,4 @@
-package com.flykespice.povray.ui.theme
+package com.flykespice.droidray.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

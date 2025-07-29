@@ -1,4 +1,4 @@
-package com.flykespice.povray.ui.dialog
+package com.flykespice.droidray.ui.dialog
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.flykespice.povray.ui.theme.POVRayTheme
+import com.flykespice.droidray.ui.theme.DroidRayTheme
 
 @Composable
 fun RenderOptionsDialog(
@@ -109,7 +109,7 @@ fun RenderOptionsDialog(
 @Preview
 @Composable
 private fun PreviewRenderOptionsDialog() {
-    POVRayTheme {
+    DroidRayTheme {
         Surface {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 var dialogOpened by remember { mutableStateOf(true) }

@@ -1,4 +1,4 @@
-package com.flykespice.povray
+package com.flykespice.droidray
 
 import org.junit.Test
 

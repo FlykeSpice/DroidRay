@@ -1,4 +1,4 @@
-package com.flykespice.povray.ui
+package com.flykespice.droidray.ui
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll

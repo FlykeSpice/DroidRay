@@ -1,4 +1,4 @@
-package com.flykespice.povray.ui
+package com.flykespice.droidray.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -25,8 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.flykespice.povray.POVRay
-import com.flykespice.povray.ui.theme.POVRayTheme
+import com.flykespice.droidray.POVRay
+import com.flykespice.droidray.ui.theme.DroidRayTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +93,7 @@ private fun PreviewLogScreen() {
         POVRay.Message(POVRay.Message.TYPE_INFO, "Rendering Done")
     )
 
-    POVRayTheme {
+    DroidRayTheme {
         Surface (Modifier.fillMaxSize()) {
             LogScreen(log = sampleLog)
         }
