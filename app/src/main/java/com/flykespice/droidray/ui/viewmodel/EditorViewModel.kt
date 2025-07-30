@@ -1,10 +1,10 @@
-package com.flykespice.povray.ui.viewmodel
+package com.flykespice.droidray.ui.viewmodel
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.flykespice.povray.POVRay
+import com.flykespice.droidray.POVRay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ class EditorViewModel(application: Application) : AndroidViewModel(application) 
 
             val error = POVRay.renderScene("${context.filesDir}/temp.pov", "+L${context.filesDir}/include +W320 +H240 -F")
             if (error != POVRay.vfeNoError) {
-                TODO("Handle povray rendering error")
+                TODO("Handle DroidRay rendering error")
             }
 
             _enabled.value = true

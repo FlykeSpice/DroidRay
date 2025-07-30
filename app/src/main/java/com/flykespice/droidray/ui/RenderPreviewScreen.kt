@@ -1,7 +1,6 @@
-package com.flykespice.povray.ui
+package com.flykespice.droidray.ui
 
 import android.content.res.Configuration
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +20,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.flykespice.povray.R
-import com.flykespice.povray.ui.theme.POVRayTheme
+import androidx.core.graphics.drawable.toBitmap
+import com.flykespice.droidray.R
+import com.flykespice.droidray.ui.theme.DroidRayTheme
 
 @Composable
 fun RenderPreviewScreen(
@@ -56,12 +56,11 @@ fun RenderPreviewScreen(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewRenderPreviewScreen() {
-    POVRayTheme {
+    DroidRayTheme {
         Surface(Modifier.fillMaxSize()) {
-            val sampleBitmap = BitmapFactory.decodeResource(
-                LocalContext.current.resources,
-                R.drawable.render_example
-            ).asImageBitmap()
+            val sampleBitmap = LocalContext.current.getDrawable(R.drawable.ic_launcher_background)!!
+                .toBitmap()
+                .asImageBitmap()
 
             RenderPreviewScreen(previewBitmap = sampleBitmap, isRendering = false, onClickSave = {})
         }

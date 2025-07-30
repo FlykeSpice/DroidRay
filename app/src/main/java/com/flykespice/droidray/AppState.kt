@@ -1,4 +1,4 @@
-package com.flykespice.povray
+package com.flykespice.droidray
 
 /**
  * This stores the application state for the duration of the process in a simple way

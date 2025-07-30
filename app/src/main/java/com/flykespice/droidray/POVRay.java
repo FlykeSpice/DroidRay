@@ -1,7 +1,6 @@
-package com.flykespice.povray;
+package com.flykespice.droidray;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class POVRay {
 

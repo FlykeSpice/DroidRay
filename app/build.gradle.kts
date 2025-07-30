@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.flykespice.povray"
+    namespace = "com.flykespice.droidray"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.flykespice.povray"
+        applicationId = "com.flykespice.droidray"
         minSdk = 21
         targetSdk = 35
         versionCode = 1

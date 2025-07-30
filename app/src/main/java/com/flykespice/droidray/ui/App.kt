@@ -1,4 +1,4 @@
-package com.flykespice.povray.ui
+package com.flykespice.droidray.ui
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -45,11 +45,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.graphics.createBitmap
-import com.flykespice.povray.AppState
-import com.flykespice.povray.POVRay
-import com.flykespice.povray.R
-import com.flykespice.povray.ui.dialog.RenderOptionsDialog
-import com.flykespice.povray.ui.theme.POVRayTheme
+import com.flykespice.droidray.AppState
+import com.flykespice.droidray.POVRay
+import com.flykespice.droidray.R
+import com.flykespice.droidray.ui.dialog.RenderOptionsDialog
+import com.flykespice.droidray.ui.theme.DroidRayTheme
 import kotlinx.coroutines.delay
 import java.nio.ByteOrder
 
@@ -316,7 +316,7 @@ private fun AppTopBar(
                 )
             }
          },
-        title = { Text("POVRay v3.7") }
+        title = { Text("DroidRay") }
     )
 }
 
@@ -366,7 +366,7 @@ private fun AppFloatingActionButton(rendering: Boolean, onClicked: () -> Unit) {
 @Preview
 @Composable
 private fun PreviewApp() {
-    POVRayTheme {
+    DroidRayTheme {
         Surface(Modifier.fillMaxSize()) {
             POVRayApp(onSaveBitmap = {}, onClickOpen = {}, onClickSave = {})
         }

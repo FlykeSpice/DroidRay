@@ -1,4 +1,4 @@
-package com.flykespice.povray
+package com.flykespice.droidray
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -8,8 +8,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Surface
-import com.flykespice.povray.ui.POVRayApp
-import com.flykespice.povray.ui.theme.POVRayTheme
+import com.flykespice.droidray.ui.POVRayApp
+import com.flykespice.droidray.ui.theme.DroidRayTheme
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -58,9 +58,9 @@ class MainActivity : ComponentActivity() {
             includeDir.mkdirs()
             copyAssetsToInternalStorage(includeDir)
         }/* else {
-            Log.d("POVRay", "directory include contents =")
+            Log.d("DroidRay", "directory include contents =")
             for (file in includeDir.list().toList()) {
-                Log.d("POVRay", "$file")
+                Log.d("DroidRay", "$file")
             }
         }*/
 
@@ -78,11 +78,11 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            POVRayTheme {
+            DroidRayTheme {
                 Surface {
                     POVRayApp(
                         onSaveBitmap = { bitmap = it; launcherBitmapExporter.launch("render.png") },
-                        onClickOpen = { launcherOpener.launch(arrayOf("application/octet-stream")) },
+                        onClickOpen = { launcherOpener.launch(arrayOf("text/*", "application/*")) },
                         onClickSave = { launcherSaver.launch(AppState.lastOpenedName ?: "scene.pov")}
                     )
                 }

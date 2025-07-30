@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "POV-Ray"
+rootProject.name = "DroidRay"
 include(":app")

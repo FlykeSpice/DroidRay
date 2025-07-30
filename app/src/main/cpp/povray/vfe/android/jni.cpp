@@ -12,7 +12,7 @@
 
 using namespace vfe;
 
-#define JNI_POVRAY_METHOD(func) Java_com_flykespice_povray_POVRay_##func
+#define JNI_POVRAY_METHOD(func) Java_com_flykespice_droidray_POVRay_##func
 
 //#define DELETE_FILE unlink
 
@@ -122,7 +122,7 @@ extern "C" JNIEXPORT jint JNICALL JNI_POVRAY_METHOD(renderScene) (JNIEnv* env, j
 		if (imageBuffer == nullptr)
 		{
 			// Step 1: Find the Java class containing the static ByteBuffer
-			jclass myClass = env->FindClass("com/flykespice/povray/POVRay");
+			jclass myClass = env->FindClass("com/flykespice/droidray/POVRay");
 			if (myClass == nullptr)
 			{
 				throwRuntimeException(env, "POVRay class not found");
@@ -211,7 +211,7 @@ extern "C" JNIEXPORT jstring JNICALL JNI_POVRAY_METHOD(getErrorString) (JNIEnv* 
 
 extern "C" JNIEXPORT jobjectArray JNICALL JNI_POVRAY_METHOD(getMessages) (JNIEnv* env, jobject thisObject)
 {
-	jclass msgClass = env->FindClass("com/flykespice/povray/POVRay$Message");
+	jclass msgClass = env->FindClass("com/flykespice/droidray/POVRay$Message");
 	if (!msgClass)
 		throwRuntimeException(env, "POVRay.Message class couldn't be found");
 
