@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.graphics.createBitmap
 import com.flykespice.droidray.AppState
@@ -61,12 +64,13 @@ fun POVRayApp(
 ) {
     val context = LocalContext.current
     var isRendering by remember { mutableStateOf((POVRay.getStatus(false) and POVRay.stRenderStartup) != 0) }
+    var showLogBadge by remember { mutableStateOf(false) }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
     if (errorMessage != null) {
         AlertDialog(
             title = { Text("Error") },
-            text = { Text(errorMessage!!) },
+            text = { Text(errorMessage!!, textAlign = TextAlign.Center) },
             onDismissRequest = {},
             confirmButton = { TextButton(onClick = { errorMessage = null }) { Text("Confirm") } }
         )
@@ -98,6 +102,7 @@ fun POVRayApp(
                 )
                 if (error != POVRay.vfeNoError) {
                     errorMessage = POVRay.getErrorString(error)
+                    showLogBadge = true
                 } else {
                     consoleLog = listOf()
                     isRendering = true
@@ -116,10 +121,11 @@ fun POVRayApp(
             val status = POVRay.getStatus(false)
             if ((status and POVRay.stRenderShutdown) != 0) {
                 if ((status and POVRay.stFailed) != 0)
-                    errorMessage = "Render failed somehow (stFailed)"
+                    errorMessage = "Render failed somehow (stFailed)\nCheck the Log for details"
 
                 POVRay.getStatus(true)
                 isRendering = false
+                showLogBadge = true
                 return@LaunchedEffect
             }
             delay(350)
@@ -133,7 +139,11 @@ fun POVRayApp(
         bottomBar = {
             AppBottomNavigation(
                 currentDestination = destination,
-                onChangeDestination = { destination = it }
+                onChangeDestination = {
+                    destination = it
+                    if (destination == 2) showLogBadge = false
+                },
+                showLogBadge = showLogBadge
             )
         },
         floatingActionButton = {
@@ -240,7 +250,7 @@ fun POVRayApp(
                                 }
                             }
 
-                            AppState.povCode = newText.text;
+                            AppState.povCode = newText.text
                             textField = newText
                         },
                         styleText = { AnnotatedString(it) },
@@ -334,7 +344,7 @@ private fun AppDropDownMenu(
 }
 
 @Composable
-private fun AppBottomNavigation(currentDestination: Int, onChangeDestination: (Int) -> Unit) {
+private fun AppBottomNavigation(currentDestination: Int, onChangeDestination: (Int) -> Unit, showLogBadge: Boolean) {
     NavigationBar {
         NavigationBarItem(
             selected = currentDestination == 0,
@@ -353,7 +363,13 @@ private fun AppBottomNavigation(currentDestination: Int, onChangeDestination: (I
         NavigationBarItem(
             selected = currentDestination == 2,
             onClick = { onChangeDestination(2) },
-            icon = { Icon(painterResource(id = R.drawable.wysiwyg), "POVRay console log") },
+            icon = {
+                BadgedBox(
+                    badge = { if (showLogBadge && currentDestination != 2) Badge() }
+                ) {
+                    Icon(painterResource(id = R.drawable.wysiwyg), "POVRay console log")
+                }
+           },
             label = { Text("Log") }
         )
     }

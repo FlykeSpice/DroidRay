@@ -48,7 +48,7 @@ fun LogScreen(log: List<POVRay.Message>) {
 
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Fold:", style = MaterialTheme.typography.titleLarge)
+            Text("Fold Lines:", style = MaterialTheme.typography.titleLarge)
             Checkbox(checked = fold, onCheckedChange = {fold = it})
         }
 
