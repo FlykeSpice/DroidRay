@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                 Surface {
                     POVRayApp(
                         onSaveBitmap = { bitmap = it; launcherBitmapExporter.launch("render.png") },
-                        onClickOpen = { launcherOpener.launch(arrayOf("application/octet-stream")) },
+                        onClickOpen = { launcherOpener.launch(arrayOf("text/*", "application/*")) },
                         onClickSave = { launcherSaver.launch(AppState.lastOpenedName ?: "scene.pov")}
                     )
                 }
