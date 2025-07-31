@@ -3,6 +3,8 @@ name: Build Debug APK
 on:
   push:
     branches: [ "master" ]
+    tags-ignore: [ 'v*' ]
+    paths-ignore: [ '**.md', '.github/images/**' ]
   pull_request:
     branches: [ "master" ]
 
