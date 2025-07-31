@@ -76,6 +76,17 @@ fun POVRayApp(
         )
     }
 
+    var newDialog by remember { mutableStateOf(false) }
+    if (newDialog) {
+        AlertDialog(
+            title = { Text("New") },
+            text = { Text("This will erase all your current work\nproceed?", textAlign = TextAlign.Center) },
+            confirmButton = { TextButton(onClick = { newDialog = false; AppState.povCode = ""; }) { Text("Confirm") } },
+            dismissButton = { TextButton(onClick = { newDialog = false }) { Text("Cancel") } },
+            onDismissRequest = { newDialog = false }
+        )
+    }
+
     var width by  remember { mutableIntStateOf(AppState.width) }
     var height by remember { mutableIntStateOf(AppState.height) }
     var antialias by remember { mutableStateOf(false) }
@@ -135,7 +146,13 @@ fun POVRayApp(
     var destination by remember { mutableIntStateOf(0) }
     val editorScrollState = rememberScrollState()
     Scaffold(
-        topBar = { AppTopBar(onClickOpen = onClickOpen, onClickSave = onClickSave) },
+        topBar = {
+            AppTopBar(
+                onClickNew = { newDialog = true },
+                onClickOpen = onClickOpen,
+                onClickSave = onClickSave
+            )
+        },
         bottomBar = {
             AppBottomNavigation(
                 currentDestination = destination,
@@ -180,6 +197,12 @@ fun POVRayApp(
                 0 ->  { //editor
                     var textField by remember { mutableStateOf(TextFieldValue(AppState.povCode)) }
                     val commentRegex = remember { Regex("/\\*.*?\\*/") } //To speedup character input processing
+
+                    LaunchedEffect(AppState.povCode) {
+                        if (textField.text != AppState.povCode) {
+                            textField = TextFieldValue(AppState.povCode)
+                        }
+                    }
 
                     EditorScreen(
                         textField = textField,
@@ -250,8 +273,8 @@ fun POVRayApp(
                                 }
                             }
 
-                            AppState.povCode = newText.text
                             textField = newText
+                            AppState.povCode = newText.text
                         },
                         styleText = { AnnotatedString(it) },
                         paddingValues = paddingValues
@@ -309,6 +332,7 @@ fun POVRayApp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppTopBar(
+    onClickNew:  () -> Unit,
     onClickOpen: () -> Unit,
     onClickSave: () -> Unit
 ) {
@@ -320,6 +344,7 @@ private fun AppTopBar(
                 IconButton(onClick = { menuExpanded = true }) { Icon(Icons.Default.Menu, "toggle menu") }
                 AppDropDownMenu(
                     expanded = menuExpanded,
+                    onClickNew  = onClickNew,
                     onClickOpen = onClickOpen,
                     onClickSave = onClickSave,
                     onDismissRequest = {menuExpanded = false}
@@ -333,11 +358,13 @@ private fun AppTopBar(
 @Composable
 private fun AppDropDownMenu(
     expanded: Boolean,
+    onClickNew:  () -> Unit,
     onClickOpen: () -> Unit,
     onClickSave: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
+        DropdownMenuItem(text = { Text("New") },  onClick = onClickNew)
         DropdownMenuItem(text = { Text("Open") }, onClick = onClickOpen)
         DropdownMenuItem(text = { Text("Save") }, onClick = onClickSave)
     }
