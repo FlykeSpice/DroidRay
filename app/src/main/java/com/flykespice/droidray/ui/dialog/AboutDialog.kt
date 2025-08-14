@@ -53,7 +53,7 @@ fun AboutDialog(
                         .size(80.dp)
                         .clip(MaterialTheme.shapes.large)
                 )
-                Text("v0.1\n", style = MaterialTheme.typography.bodySmall)
+                Text("v0.2\n", style = MaterialTheme.typography.bodySmall)
 
                 Text("© 2025 FlykeSpice", style = MaterialTheme.typography.bodySmall)
 
