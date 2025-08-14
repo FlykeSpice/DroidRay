@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
@@ -51,16 +52,18 @@ import androidx.core.graphics.createBitmap
 import com.flykespice.droidray.AppState
 import com.flykespice.droidray.POVRay
 import com.flykespice.droidray.R
+import com.flykespice.droidray.ui.dialog.AboutDialog
 import com.flykespice.droidray.ui.dialog.RenderOptionsDialog
 import com.flykespice.droidray.ui.theme.DroidRayTheme
 import kotlinx.coroutines.delay
 import java.nio.ByteOrder
 
 @Composable
-fun POVRayApp(
+fun DroidRayApp(
     onSaveBitmap: (Bitmap) -> Unit,
     onClickOpen: () -> Unit,
-    onClickSave: () -> Unit
+    onClickSave: () -> Unit,
+    onClickViewLicenses: () -> Unit
 ) {
     val context = LocalContext.current
     var isRendering by remember { mutableStateOf((POVRay.getStatus(false) and POVRay.stRenderStartup) != 0) }
@@ -143,14 +146,23 @@ fun POVRayApp(
         }
     }
 
+    var aboutDialog by remember { mutableStateOf(false) }
+    if (aboutDialog) {
+        AboutDialog(
+            onDismissRequest = { aboutDialog = false },
+            onClickLicense = { aboutDialog = false; onClickViewLicenses() }
+        )
+    }
+
     var destination by remember { mutableIntStateOf(0) }
     val editorScrollState = rememberScrollState()
     Scaffold(
         topBar = {
             AppTopBar(
-                onClickNew = { newDialog = true },
-                onClickOpen = onClickOpen,
-                onClickSave = onClickSave
+                onClickNew   = { newDialog = true },
+                onClickOpen  = onClickOpen,
+                onClickSave  = onClickSave,
+                onClickAbout = { aboutDialog = true }
             )
         },
         bottomBar = {
@@ -332,11 +344,13 @@ fun POVRayApp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppTopBar(
-    onClickNew:  () -> Unit,
-    onClickOpen: () -> Unit,
-    onClickSave: () -> Unit
+    onClickNew:   () -> Unit,
+    onClickOpen:  () -> Unit,
+    onClickSave:  () -> Unit,
+    onClickAbout: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+    var settingExpanded by remember { mutableStateOf(false) }
 
     TopAppBar(
         navigationIcon = {
@@ -350,7 +364,18 @@ private fun AppTopBar(
                     onDismissRequest = {menuExpanded = false}
                 )
             }
-         },
+        },
+        actions = {
+            Column {
+                IconButton(onClick = { settingExpanded = true }) { Icon(Icons.Default.MoreVert, null) }
+                DropdownMenu(expanded = settingExpanded, onDismissRequest = { settingExpanded = false }) {
+                    DropdownMenuItem(
+                        text = { Text("About") },
+                        onClick = { settingExpanded = false; onClickAbout() }
+                    )
+                }
+            }
+        },
         title = { Text("DroidRay") }
     )
 }
@@ -411,7 +436,7 @@ private fun AppFloatingActionButton(rendering: Boolean, onClicked: () -> Unit) {
 private fun PreviewApp() {
     DroidRayTheme {
         Surface(Modifier.fillMaxSize()) {
-            POVRayApp(onSaveBitmap = {}, onClickOpen = {}, onClickSave = {})
+            DroidRayApp(onSaveBitmap = {}, onClickOpen = {}, onClickSave = {}, onClickViewLicenses = {})
         }
     }
 }
