@@ -1,25 +1,30 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.flykespice.droidray"
-    compileSdk = 36
+    compileSdk = 37
+
+    //POVRay can only build on older NDKs...
+    ndkVersion = "27.3.13750724"
 
     defaultConfig {
         applicationId = "com.flykespice.droidray"
-        minSdk = 21
-        targetSdk = 35
+        minSdk = 23
+        targetSdk = 36
         versionCode = 2
         versionName = "0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        ndk {
+            abiFilters.add("arm64-v8a")
         }
     }
 
@@ -57,7 +62,7 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
+        languageVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_3
     }
 }
 

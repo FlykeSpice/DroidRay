@@ -1,15 +1,15 @@
 [versions]
-agp = "8.13.0-alpha04"
-kotlin = "2.2.10-RC"
-coreKtx = "1.17.0-beta01"
+agp = "9.1.1"
+kotlin = "2.3.20"
+coreKtx = "1.18.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.9.2"
-activityCompose = "1.12.0-alpha05"
-composeBom = "2025.07.00"
-material3 = "1.4.0-alpha18"
-navigation3 = "1.0.0-alpha06"
+lifecycleRuntimeKtx = "2.10.0"
+activityCompose = "1.13.0"
+composeBom = "2026.03.01"
+material3 = " 1.5.0-alpha17"
+navigation3 = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +33,5 @@ androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
